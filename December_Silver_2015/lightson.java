@@ -1,6 +1,5 @@
 package December_Silver_2015;
 import java.util.*;
-import javafx.*;
 import java.io.*;
 
 public class lightson {
@@ -16,8 +15,8 @@ public class lightson {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		BufferedReader f = new BufferedReader(new FileReader("test.in"));
-	    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("test.out")));
+		BufferedReader f = new BufferedReader(new FileReader("lightson.in"));
+	    PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("lightson.out")));
 	    
 	    StringTokenizer st = new StringTokenizer(f.readLine());
 	    int N = Integer.parseInt(st.nextToken());
@@ -42,56 +41,50 @@ public class lightson {
 	    
 	    int[][] visited = new int[N][N];
 	    visited[0][0] = 1;
-	    int maxRooms = dfs(grid, visited, 0, 0);
+	    boolean needToExplore = true;
+	    while (needToExplore) {
+	    		needToExplore = dfs(grid, visited, 0, 0);
+	    		for (int i = 0; i < N; i++) {
+		    		for (int j = 0; j < N; j++) {
+		    			if (visited[i][j] == 2)
+		    				visited[i][j] = 1;
+		    		}
+		    }
+	    }
+	    
+	    int count = 0;
 	    for (int i = 0; i < N; i++) {
 	    		for (int j = 0; j < N; j++) {
-	    			System.out.print(visited[i][j] + " ");
+	    			if (visited[i][j] == 1)
+	    				count++;
 	    		}
-	    		System.out.println();
 	    }
-	    System.out.println(maxRooms);
+	    
+	    out.println(count);
+	    out.close();
  	}
 	
-	public static boolean valid(int row, int col, int n) {
-		if ((row < 0 || row >= n) || (col < 0 || col >= n))
-			return false;
-		return true;
-	}
-	public static int dfs(LinkedList<Pair>[][] grid, int[][] v, int row, int col) {
+	public static boolean dfs(LinkedList<Pair>[][] grid, int[][] v, int row, int col) {
 		if ((row < 0 || row >= grid.length) || (col < 0 || col >= grid.length))
-			return 0;
+			return false;
 		
 		if (v[row][col] == 0 || v[row][col] == 2)
-			return 0;
+			return false;
 		
 		v[row][col] = 2;
-		int sum = 1;
+		boolean switched = false;
 		for (Pair p : grid[row][col]) {
-			v[p.x][p.y] = 1;
-			System.out.println(p.x + " " + p.y);
-			boolean adjacent = false;
-			if (valid(p.x+1, p.y, grid.length) && v[p.x+1][p.y] == 2) {
-				adjacent = true;
-			}
-			
-			if (valid(p.x, p.y+1, grid.length) && v[p.x][p.y+1] == 2) {
-				adjacent = true;
-			}
-			
-			if (valid(p.x-1, p.y, grid.length) && v[p.x-1][p.y] == 2) {
-				adjacent = true;
-			}
-			
-			if (valid(p.x, p.y-1, grid.length) && v[p.x][p.y-1] == 2) {
-				adjacent = true;
-			}
-			
-			if (adjacent) {
-				sum += dfs(grid, v, p.x, p.y);
+			if (v[p.x][p.y] == 0) {
+				v[p.x][p.y] = 1;
+				switched = true;
 			}
 		}
 		
-		return sum;
+		switched |= dfs(grid, v, row+1, col);
+		switched |= dfs(grid, v, row, col+1);
+		switched |= dfs(grid, v, row-1, col);
+		switched |= dfs(grid, v, row, col-1);
+		return switched;
 	}
 
 }
